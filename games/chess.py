@@ -230,26 +230,26 @@ class Game(AbstractGame):
 
 class Chess:
     def __init__(self):
-        #self.board = numpy.zeros((8, 8), dtype="int32")
-        self.board = np.zeros([8,8]).astype(str)
-        self.board[0,0] = "r"
-        self.board[0,1] = "n"
-        self.board[0,2] = "b"
-        self.board[0,3] = "q"
-        self.board[0,4] = "k"
-        self.board[0,5] = "b"
-        self.board[0,6] = "n"
-        self.board[0,7] = "r"
-        self.board[1,0:8] = "p"
-        self.board[7,0] = "R"
-        self.board[7,1] = "N"
-        self.board[7,2] = "B"
-        self.board[7,3] = "Q"
-        self.board[7,4] = "K"
-        self.board[7,5] = "B"
-        self.board[7,6] = "N"
-        self.board[7,7] = "R"
-        self.board[6,0:8] = "P"
+        self.board = numpy.zeros((8, 8), dtype="int32")
+        #self.board = np.zeros([8,8]).astype(str)
+        self.board[0,0] = 1 #"r"
+        self.board[0,1] = 2 #"n"
+        self.board[0,2] = 3 #"b"
+        self.board[0,3] = 4 #"q"
+        self.board[0,4] = 5 #"k"
+        self.board[0,5] = 6 #"b"
+        self.board[0,6] = 7 #"n"
+        self.board[0,7] = 8 #"r"
+        self.board[1,0:8] = 9 #"p"
+        self.board[7,0] = 11 #"R"
+        self.board[7,1] = 12 #"N"
+        self.board[7,2] = 13 #"B"
+        self.board[7,3] = 14 #"Q"
+        self.board[7,4] = 15 #"K"
+        self.board[7,5] = 16 #"B"
+        self.board[7,6] = 17 #"N"
+        self.board[7,7] = 18 #"R"
+        self.board[6,0:8] = 19 #"P"
         self.board[self.board == "0.0"] = " "
         self.move_count = 0
         self.no_progress_count = 0
