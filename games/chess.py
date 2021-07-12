@@ -231,15 +231,49 @@ class Game(AbstractGame):
 class Chess:
     def __init__(self):
         #self.board = numpy.zeros((8, 8), dtype="int32")
-        self.board = chess.Board()
-        self.player = 1
+        self.board = np.zeros([8,8]).astype(str)
+        self.board[0,0] = "r"
+        self.board[0,1] = "n"
+        self.board[0,2] = "b"
+        self.board[0,3] = "q"
+        self.board[0,4] = "k"
+        self.board[0,5] = "b"
+        self.board[0,6] = "n"
+        self.board[0,7] = "r"
+        self.board[1,0:8] = "p"
+        self.board[7,0] = "R"
+        self.board[7,1] = "N"
+        self.board[7,2] = "B"
+        self.board[7,3] = "Q"
+        self.board[7,4] = "K"
+        self.board[7,5] = "B"
+        self.board[7,6] = "N"
+        self.board[7,7] = "R"
+        self.board[6,0:8] = "P"
+        self.board[self.board == "0.0"] = " "
+        self.move_count = 0
+        self.no_progress_count = 0
+        self.repetitions_w = 0
+        self.repetitions_b = 0
+        self.move_history = None
+        self.en_passant = -999; self.en_passant_move = 0 # returns j index of last en_passant pawn
+        self.r1_move_count = 0 # black's queenside rook
+        self.r2_move_count = 0 # black's kingside rook
+        self.k_move_count = 0
+        self.R1_move_count = 0 # white's queenside rook
+        self.R2_move_count = 0 # white's kingside rook
+        self.K_move_count = 0
+        self.current_board = self.board
+        self.en_passant_move_copy = None
+        self.copy_board = None; self.en_passant_copy = None; self.r1_move_count_copy = None; self.r2_move_count_copy = None; 
+        self.k_move_count_copy = None; self.R1_move_count_copy = None; self.R2_move_count_copy = None; self.K_move_count_copy = None
+        self.player = 1 # current player's turn (0:white, 1:black)
 
     def to_play(self):
         return 0 if self.player == 1 else 1
 
     def reset(self):
-        #self.board = numpy.zeros((8, 8), dtype="int32")
-        self.board = chess.Board()
+        self.board = numpy.zeros((8, 8), dtype="int32")
         self.player = 1
         return self.get_observation()
 
@@ -247,6 +281,7 @@ class Chess:
         row = action // 8
         col = action % 8
         self.board[row, col] = self.player
+
 
         done = self.have_winner() or len(self.legal_actions()) == True
 
@@ -261,7 +296,6 @@ class Chess:
         board_player2 = numpy.where(self.board == -1, 1, 0)
         board_to_play = numpy.full((8, 8), self.player)
         return numpy.array([board_player1, board_player2, board_to_play], dtype="int32")
- 
 
     def legal_actions(self):
         legal = []
@@ -272,7 +306,7 @@ class Chess:
                 #legal.append(i)
         #return legal
 
-        if (self.bool(board.legal_moves) == True):
+        if self.bool(board.legal_moves) == True
             legal.append()
 
         return legal
