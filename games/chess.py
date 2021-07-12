@@ -248,7 +248,7 @@ class Chess:
         col = action % 8
         #self.board[row, col] = self.player
 
-        self.Board(row, col) = self.player
+        self.board(row, col) = self.player
 
         done = self.have_winner() or len(self.legal_actions()) == True
 
