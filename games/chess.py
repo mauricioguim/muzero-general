@@ -246,9 +246,7 @@ class Chess:
     def step(self, action):
         row = action // 8
         col = action % 8
-        #self.board[row, col] = self.player
-
-        self.board(row, col) = self.player
+        self.board[row, col] = self.player
 
         done = self.have_winner() or len(self.legal_actions()) == True
 
