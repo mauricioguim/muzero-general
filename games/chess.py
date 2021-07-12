@@ -273,7 +273,7 @@ class Chess:
                 #legal.append(i)
         #return legal
 
-        if self.bool(board.legal_moves) == True
+        if (self.bool(board.legal_moves) == True):
             legal.append()
 
         return legal
