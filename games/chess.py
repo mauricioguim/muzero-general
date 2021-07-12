@@ -251,7 +251,7 @@ class Chess:
         self.board[7,7] = 18 #"R"
         self.board[6,0:8] = 19 #"P"
         self.board[self.board == "0.0"] = " "
-        self.move_count = 0
+        '''self.move_count = 0
         self.no_progress_count = 0
         self.repetitions_w = 0
         self.repetitions_b = 0
@@ -267,7 +267,7 @@ class Chess:
         self.en_passant_move_copy = None
         self.copy_board = None; self.en_passant_copy = None; self.r1_move_count_copy = None; self.r2_move_count_copy = None; 
         self.k_move_count_copy = None; self.R1_move_count_copy = None; self.R2_move_count_copy = None; self.K_move_count_copy = None
-        self.player = 1 # current player's turn (0:white, 1:black)
+        self.player = 1 # current player's turn (0:white, 1:black)'''
 
     def to_play(self):
         return 0 if self.player == 1 else 1
