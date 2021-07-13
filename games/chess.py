@@ -250,8 +250,8 @@ class Chess:
         self.board[7,6] = 17 #"N"
         self.board[7,7] = 18 #"R"
         self.board[6,0:8] = 19 #"P"
-        self.board[self.board == "0.0"] = " "
-        '''self.move_count = 0
+        '''self.board[self.board == "0.0"] = " "
+        self.move_count = 0
         self.no_progress_count = 0
         self.repetitions_w = 0
         self.repetitions_b = 0
