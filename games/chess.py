@@ -299,18 +299,12 @@ class Chess:
 
     def legal_actions(self):
         legal = []
-        #for i in range(64):
-            #row = i // 8
-            #col = i % 8
-            #if self.board[row, col] == 0:
-                #legal.append(i)
-        #return legal
-
-        if self.bool(board.legal_moves) == True
-            legal.append()
-
+        for i in range(64):
+            row = i // 8
+            col = i % 8
+            if self.board[row, col] == 0:
+                legal.append(i)
         return legal
-
 
     def render(self):
         print(self.board[::-1])
