@@ -283,7 +283,7 @@ class Chess:
         self.board[row, col] = self.player
 
 
-        done = self.have_winner() or len(self.legal_actions()) == True
+        done = self.have_winner() or len(self.legal_actions()) == 0
 
         reward = 1 if self.have_winner() else 0
 
