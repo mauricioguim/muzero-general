@@ -1,7 +1,7 @@
 import datetime
 import os
 
-import numpy as np
+import numpy
 import itertools
 import copy
 import torch
@@ -300,7 +300,7 @@ class Chess:
         acts = []
         if self.player == 0:
             _,c_dict = self.possible_W_moves() # all non-king moves except castling
-            current_position = np.where(self.current_board==15)
+            current_position = numpy.where(self.current_board==15)
             i, j = current_position; i,j = i[0],j[0]
             c_dict[15] = {(i,j):self.move_rules_K()} # all king moves
             for key in c_dict.keys():
@@ -321,7 +321,7 @@ class Chess:
             return actss
         if self.player == 1:
             _,c_dict = self.possible_B_moves() # all non-king moves except castling
-            current_position = np.where(self.current_board==5)
+            current_position = numpy.where(self.current_board==5)
             i, j = current_position; i,j = i[0],j[0]
             c_dict[5] = {(i,j):self.move_rules_k()} # all king moves
             for key in c_dict.keys():
@@ -370,19 +370,19 @@ class Chess:
     def possible_W_moves(self, threats=False):
         board_state = self.current_board
         rooks = {}; knights = {}; bishops = {}; queens = {}; pawns = {};
-        i,j = np.where(board_state==11)
+        i,j = numpy.where(board_state==11)
         for rook in zip(i,j):
             rooks[tuple(rook)] = self.move_rules_R(rook)
-        i,j = np.where(board_state==12)
+        i,j = numpy.where(board_state==12)
         for knight in zip(i,j):
             knights[tuple(knight)] = self.move_rules_N(knight)
-        i,j = np.where(board_state==13)
+        i,j = numpy.where(board_state==13)
         for bishop in zip(i,j):
             bishops[tuple(bishop)] = self.move_rules_B(bishop)
-        i,j = np.where(board_state==14)
+        i,j = numpy.where(board_state==14)
         for queen in zip(i,j):
             queens[tuple(queen)] = self.move_rules_Q(queen)
-        i,j = np.where(board_state==16)
+        i,j = numpy.where(board_state==16)
         for pawn in zip(i,j):
             if threats==False:
                 pawns[tuple(pawn)],_ = self.move_rules_P(pawn)
@@ -396,7 +396,7 @@ class Chess:
         return c_list, c_dict
         
     def move_rules_k(self):
-        current_position = np.where(self.current_board==15)
+        current_position = numpy.where(self.current_board==15)
         i, j = current_position; i,j = i[0],j[0]
         next_positions = []
         c_list, _ = self.possible_W_moves(threats=True)
@@ -414,19 +414,19 @@ class Chess:
     def possible_B_moves(self,threats=False):
         rooks = {}; knights = {}; bishops = {}; queens = {}; pawns = {};
         board_state = self.current_board
-        i,j = np.where(board_state==1)
+        i,j = numpy.where(board_state==1)
         for rook in zip(i,j):
             rooks[tuple(rook)] = self.move_rules_r(rook)
-        i,j = np.where(board_state==2)
+        i,j = numpy.where(board_state==2)
         for knight in zip(i,j):
             knights[tuple(knight)] = self.move_rules_n(knight)
-        i,j = np.where(board_state==3)
+        i,j = numpy.where(board_state==3)
         for bishop in zip(i,j):
             bishops[tuple(bishop)] = self.move_rules_b(bishop)
-        i,j = np.where(board_state==4)
+        i,j = numpy.where(board_state==4)
         for queen in zip(i,j):
             queens[tuple(queen)] = self.move_rules_q(queen)
-        i,j = np.where(board_state==6)
+        i,j = numpy.where(board_state==6)
         for pawn in zip(i,j):
             if threats==False:
                 pawns[tuple(pawn)],_ = self.move_rules_p(pawn)
