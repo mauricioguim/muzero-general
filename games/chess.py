@@ -248,7 +248,7 @@ class Chess:
         self.board[7,6] = 12 #"N"
         self.board[7,7] = 11 #"R"
         self.board[6,0:8] = 16 #"P"
-        self.board[self.board == ''] = ''
+        #self.board[self.board == ''] = ''
         self.move_count = 0
         self.no_progress_count = 0
         self.repetitions_w = 0
