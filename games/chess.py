@@ -248,7 +248,7 @@ class Chess:
         self.board[7,6] = 12 #"N"
         self.board[7,7] = 11 #"R"
         self.board[6,0:8] = 16 #"P"
-        #self.board[self.board == ''] = ''
+        self.board[self.board == 0] = 0
         self.move_count = 0
         self.no_progress_count = 0
         self.repetitions_w = 0
@@ -341,30 +341,6 @@ class Chess:
                     actss.append(act)
             return actss
 
-    '''def have_winner(self):
-        # Horizontal and vertical checks
-        for i in range(3):
-            if (self.board[i, :] == self.player * numpy.ones(3, dtype="int32")).all():
-                return True
-            if (self.board[:, i] == self.player * numpy.ones(3, dtype="int32")).all():
-                return True
-
-        # Diagonal checks
-        if (
-            self.board[0, 0] == self.player
-            and self.board[1, 1] == self.player
-            and self.board[2, 2] == self.player
-        ):
-            return True
-        if (
-            self.board[2, 0] == self.player
-            and self.board[1, 1] == self.player
-            and self.board[0, 2] == self.player
-        ):
-            return True
-
-        return False'''
-
 
         #does not include king, castling
     def possible_W_moves(self, threats=False):
@@ -402,7 +378,7 @@ class Chess:
         c_list, _ = self.possible_W_moves(threats=True)
         for a,b in [(i+1,j),(i-1,j),(i,j+1),(i,j-1),(i+1,j+1),(i-1,j-1),(i+1,j-1),(i-1,j+1)]:
             if 0<=a<=7 and 0<=b<=7:
-                if self.current_board[a,b] in ['',14,13,12,16,11] and (a,b) not in c_list:
+                if self.current_board[a,b] in [0,14,13,12,16,11] and (a,b) not in c_list:
                     next_positions.append((a,b))
         if self.castle("queenside") == True and self.check_status() == False:
             next_positions.append((0,2))
@@ -446,7 +422,7 @@ class Chess:
         c_list, _ = self.possible_B_moves(threats=True)
         for a,b in [(i+1,j),(i-1,j),(i,j+1),(i,j-1),(i+1,j+1),(i-1,j-1),(i+1,j-1),(i-1,j+1)]:
             if 0<=a<=7 and 0<=b<=7:
-                if self.current_board[a,b] in ['',4,3,2,6,1] and (a,b) not in c_list:
+                if self.current_board[a,b] in [0,4,3,2,6,1] and (a,b) not in c_list:
                     next_positions.append((a,b))
         if self.castle("queenside") == True and self.check_status() == False:
             next_positions.append((7,2))
@@ -459,7 +435,7 @@ class Chess:
             promoted = False
             i, j = initial_position
             piece = self.current_board[i,j]
-            self.current_board[i,j] = ''
+            self.current_board[i,j] = 0
             i, j = final_position
             if piece == 11 and initial_position == (7,0):
                 self.R1_move_count += 1
@@ -471,8 +447,8 @@ class Chess:
             if piece == 16:
                 if abs(x-i) > 1:
                     self.en_passant = j; self.en_passant_move = self.move_count
-                if abs(y-j) == 1 and self.current_board[i,j] == '': # En passant capture
-                    self.current_board[i+1,j] = ''
+                if abs(y-j) == 1 and self.current_board[i,j] == 0: # En passant capture
+                    self.current_board[i+1,j] = 0
                 if i == 0 and promoted_piece in [11,13,12,14]:
                     self.current_board[i,j] = promoted_piece
                     promoted = True
@@ -485,7 +461,7 @@ class Chess:
             promoted = False
             i, j = initial_position
             piece = self.current_board[i,j]
-            self.current_board[i,j] = ''
+            self.current_board[i,j] = 0
             i, j = final_position
             if piece == 1 and initial_position == (0,0):
                 self.r1_move_count += 1
@@ -497,8 +473,8 @@ class Chess:
             if piece == 6:
                 if abs(x-i) > 1:
                     self.en_passant = j; self.en_passant_move = self.move_count
-                if abs(y-j) == 1 and self.current_board[i,j] == '': # En passant capture
-                    self.current_board[i-1,j] = ''
+                if abs(y-j) == 1 and self.current_board[i,j] == 0: # En passant capture
+                    self.current_board[i-1,j] = 0
                 if i == 7 and promoted_piece in [1,3,2,4]:
                     self.current_board[i,j] = promoted_piece
                     promoted = True
@@ -540,9 +516,9 @@ class Chess:
             threats.append((i-1,j-1))
         #at initial position
         if i==6:
-            if board_state[i-1,j]==" ":
+            if board_state[i-1,j]==0:
                 next_positions.append((i-1,j))
-                if board_state[i-2,j]==" ":
+                if board_state[i-2,j]==0:
                     next_positions.append((i-2,j))
         # en passant capture
         elif i==3 and self.en_passant!=-999:
@@ -550,7 +526,7 @@ class Chess:
                 next_positions.append((i-1,j-1))
             elif j+1==self.en_passant and abs(self.en_passant_move-self.move_count) == 1:
                 next_positions.append((i-1,j+1))
-        if i in [1,2,3,4,5] and board_state[i-1,j]==" ":
+        if i in [1,2,3,4,5] and board_state[i-1,j]==0:
             next_positions.append((i-1,j))          
         if j==0 and board_state[i-1,j+1] in [1, 2, 3, 4, 5, 6]:
             next_positions.append((i-1,j+1))
@@ -575,9 +551,9 @@ class Chess:
             threats.append((i+1,j-1))
         #at initial position
         if i==1:
-            if board_state[i+1,j]==" ":
+            if board_state[i+1,j]==0:
                 next_positions.append((i+1,j))
-                if board_state[i+2,j]==" ":
+                if board_state[i+2,j]==0:
                     next_positions.append((i+2,j))
         # en passant capture
         elif i==4 and self.en_passant!=-999:
@@ -585,7 +561,7 @@ class Chess:
                 next_positions.append((i+1,j-1))
             elif j+1==self.en_passant and abs(self.en_passant_move-self.move_count) == 1:
                 next_positions.append((i+1,j+1))
-        if i in [2,3,4,5,6] and board_state[i+1,j]==" ":
+        if i in [2,3,4,5,6] and board_state[i+1,j]==0:
             next_positions.append((i+1,j))          
         if j==0 and board_state[i+1,j+1] in [11, 12, 13, 14, 15, 16]:
             next_positions.append((i+1,j+1))
@@ -603,7 +579,7 @@ class Chess:
         board_state = self.current_board
         next_positions = []; a=i
         while a!=0:
-            if board_state[a-1,j]!=" ":
+            if board_state[a-1,j]!=0:
                 if board_state[a-1,j] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a-1,j))
                 break
@@ -611,7 +587,7 @@ class Chess:
             a-=1
         a=i
         while a!=7:
-            if board_state[a+1,j]!=" ":
+            if board_state[a+1,j]!=0:
                 if board_state[a+1,j] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a+1,j))
                 break
@@ -619,7 +595,7 @@ class Chess:
             a+=1
         a=j
         while a!=7:
-            if board_state[i,a+1]!=" ":
+            if board_state[i,a+1]!=0:
                 if board_state[i,a+1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((i,a+1))
                 break
@@ -627,7 +603,7 @@ class Chess:
             a+=1
         a=j
         while a!=0:
-            if board_state[i,a-1]!=" ":
+            if board_state[i,a-1]!=0:
                 if board_state[i,a-1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((i,a-1))
                 break
@@ -640,7 +616,7 @@ class Chess:
         board_state = self.current_board
         next_positions = []; a=i
         while a!=0:
-            if board_state[a-1,j]!=" ":
+            if board_state[a-1,j]!=0:
                 if board_state[a-1,j] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a-1,j))
                 break
@@ -648,7 +624,7 @@ class Chess:
             a-=1
         a=i
         while a!=7:
-            if board_state[a+1,j]!=" ":
+            if board_state[a+1,j]!=0:
                 if board_state[a+1,j] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a+1,j))
                 break
@@ -656,7 +632,7 @@ class Chess:
             a+=1
         a=j
         while a!=7:
-            if board_state[i,a+1]!=" ":
+            if board_state[i,a+1]!=0:
                 if board_state[i,a+1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((i,a+1))
                 break
@@ -664,7 +640,7 @@ class Chess:
             a+=1
         a=j
         while a!=0:
-            if board_state[i,a-1]!=" ":
+            if board_state[i,a-1]!=0:
                 if board_state[i,a-1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((i,a-1))
                 break
@@ -678,7 +654,7 @@ class Chess:
         board_state = self.current_board
         for a,b in [(i+2,j-1),(i+2,j+1),(i+1,j-2),(i-1,j-2),(i-2,j+1),(i-2,j-1),(i-1,j+2),(i+1,j+2)]:
             if 0<=a<=7 and 0<=b<=7:
-                if board_state[a,b] in [11, 12, 13, 14, 15, 16, " "]:
+                if board_state[a,b] in [11, 12, 13, 14, 15, 16, 0]:
                     next_positions.append((a,b))
         return next_positions
     
@@ -688,7 +664,7 @@ class Chess:
         board_state = self.current_board
         for a,b in [(i+2,j-1),(i+2,j+1),(i+1,j-2),(i-1,j-2),(i-2,j+1),(i-2,j-1),(i-1,j+2),(i+1,j+2)]:
             if 0<=a<=7 and 0<=b<=7:
-                if board_state[a,b] in [1, 2, 3, 4, 5, 6, " "]:
+                if board_state[a,b] in [1, 2, 3, 4, 5, 6, 0]:
                     next_positions.append((a,b))
         return next_positions
     
@@ -698,7 +674,7 @@ class Chess:
         board_state = self.current_board
         a=i;b=j
         while a!=0 and b!=0:
-            if board_state[a-1,b-1]!=" ":
+            if board_state[a-1,b-1]!=0:
                 if board_state[a-1,b-1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a-1,b-1))
                 break
@@ -706,7 +682,7 @@ class Chess:
             a-=1;b-=1
         a=i;b=j
         while a!=7 and b!=7:
-            if board_state[a+1,b+1]!=" ":
+            if board_state[a+1,b+1]!=0:
                 if board_state[a+1,b+1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a+1,b+1))
                 break
@@ -714,7 +690,7 @@ class Chess:
             a+=1;b+=1
         a=i;b=j
         while a!=0 and b!=7:
-            if board_state[a-1,b+1]!=" ":
+            if board_state[a-1,b+1]!=0:
                 if board_state[a-1,b+1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a-1,b+1))
                 break
@@ -722,7 +698,7 @@ class Chess:
             a-=1;b+=1
         a=i;b=j
         while a!=7 and b!=0:
-            if board_state[a+1,b-1]!=" ":
+            if board_state[a+1,b-1]!=0:
                 if board_state[a+1,b-1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a+1,b-1))
                 break
@@ -736,7 +712,7 @@ class Chess:
         board_state = self.current_board
         a=i;b=j
         while a!=0 and b!=0:
-            if board_state[a-1,b-1]!=" ":
+            if board_state[a-1,b-1]!=0:
                 if board_state[a-1,b-1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a-1,b-1))
                 break
@@ -744,7 +720,7 @@ class Chess:
             a-=1;b-=1
         a=i;b=j
         while a!=7 and b!=7:
-            if board_state[a+1,b+1]!=" ":
+            if board_state[a+1,b+1]!=0:
                 if board_state[a+1,b+1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a+1,b+1))
                 break
@@ -752,7 +728,7 @@ class Chess:
             a+=1;b+=1
         a=i;b=j
         while a!=0 and b!=7:
-            if board_state[a-1,b+1]!=" ":
+            if board_state[a-1,b+1]!=0:
                 if board_state[a-1,b+1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a-1,b+1))
                 break
@@ -760,7 +736,7 @@ class Chess:
             a-=1;b+=1
         a=i;b=j
         while a!=7 and b!=0:
-            if board_state[a+1,b-1]!=" ":
+            if board_state[a+1,b-1]!=0:
                 if board_state[a+1,b-1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a+1,b-1))
                 break
@@ -774,7 +750,7 @@ class Chess:
         next_positions = [];a=i
         #bishop moves
         while a!=0:
-            if board_state[a-1,j]!=" ":
+            if board_state[a-1,j]!=0:
                 if board_state[a-1,j] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a-1,j))
                 break
@@ -782,7 +758,7 @@ class Chess:
             a-=1
         a=i
         while a!=7:
-            if board_state[a+1,j]!=" ":
+            if board_state[a+1,j]!=0:
                 if board_state[a+1,j] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a+1,j))
                 break
@@ -790,7 +766,7 @@ class Chess:
             a+=1
         a=j
         while a!=7:
-            if board_state[i,a+1]!=" ":
+            if board_state[i,a+1]!=0:
                 if board_state[i,a+1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((i,a+1))
                 break
@@ -798,7 +774,7 @@ class Chess:
             a+=1
         a=j
         while a!=0:
-            if board_state[i,a-1]!=" ":
+            if board_state[i,a-1]!=0:
                 if board_state[i,a-1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((i,a-1))
                 break
@@ -807,7 +783,7 @@ class Chess:
         #rook moves
         a=i;b=j
         while a!=0 and b!=0:
-            if board_state[a-1,b-1]!=" ":
+            if board_state[a-1,b-1]!=0:
                 if board_state[a-1,b-1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a-1,b-1))
                 break
@@ -815,7 +791,7 @@ class Chess:
             a-=1;b-=1
         a=i;b=j
         while a!=7 and b!=7:
-            if board_state[a+1,b+1]!=" ":
+            if board_state[a+1,b+1]!=0:
                 if board_state[a+1,b+1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a+1,b+1))
                 break
@@ -823,7 +799,7 @@ class Chess:
             a+=1;b+=1
         a=i;b=j
         while a!=0 and b!=7:
-            if board_state[a-1,b+1]!=" ":
+            if board_state[a-1,b+1]!=0:
                 if board_state[a-1,b+1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a-1,b+1))
                 break
@@ -831,7 +807,7 @@ class Chess:
             a-=1;b+=1
         a=i;b=j
         while a!=7 and b!=0:
-            if board_state[a+1,b-1]!=" ":
+            if board_state[a+1,b-1]!=0:
                 if board_state[a+1,b-1] in [11, 12, 13, 14, 15, 16]:
                     next_positions.append((a+1,b-1))
                 break
@@ -845,7 +821,7 @@ class Chess:
         next_positions = [];a=i
         #bishop moves
         while a!=0:
-            if board_state[a-1,j]!=" ":
+            if board_state[a-1,j]!=0:
                 if board_state[a-1,j] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a-1,j))
                 break
@@ -853,7 +829,7 @@ class Chess:
             a-=1
         a=i
         while a!=7:
-            if board_state[a+1,j]!=" ":
+            if board_state[a+1,j]!=0:
                 if board_state[a+1,j] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a+1,j))
                 break
@@ -861,7 +837,7 @@ class Chess:
             a+=1
         a=j
         while a!=7:
-            if board_state[i,a+1]!=" ":
+            if board_state[i,a+1]!=0:
                 if board_state[i,a+1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((i,a+1))
                 break
@@ -869,7 +845,7 @@ class Chess:
             a+=1
         a=j
         while a!=0:
-            if board_state[i,a-1]!=" ":
+            if board_state[i,a-1]!=0:
                 if board_state[i,a-1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((i,a-1))
                 break
@@ -878,7 +854,7 @@ class Chess:
         #rook moves
         a=i;b=j
         while a!=0 and b!=0:
-            if board_state[a-1,b-1]!=" ":
+            if board_state[a-1,b-1]!=0:
                 if board_state[a-1,b-1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a-1,b-1))
                 break
@@ -886,7 +862,7 @@ class Chess:
             a-=1;b-=1
         a=i;b=j
         while a!=7 and b!=7:
-            if board_state[a+1,b+1]!=" ":
+            if board_state[a+1,b+1]!=0:
                 if board_state[a+1,b+1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a+1,b+1))
                 break
@@ -894,7 +870,7 @@ class Chess:
             a+=1;b+=1
         a=i;b=j
         while a!=0 and b!=7:
-            if board_state[a-1,b+1]!=" ":
+            if board_state[a-1,b+1]!=0:
                 if board_state[a-1,b+1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a-1,b+1))
                 break
@@ -902,7 +878,7 @@ class Chess:
             a-=1;b+=1
         a=i;b=j
         while a!=7 and b!=0:
-            if board_state[a+1,b-1]!=" ":
+            if board_state[a+1,b-1]!=0:
                 if board_state[a+1,b-1] in [1, 2, 3, 4, 5, 6]:
                     next_positions.append((a+1,b-1))
                 break
@@ -914,34 +890,34 @@ class Chess:
     ## player = "w" or "b", side="queenside" or "kingside"
     def castle(self,side,inplace=False):
         if self.player == 0 and self.K_move_count == 0:
-            if side == "queenside" and self.R1_move_count == 0 and self.current_board[7,1] == " " and self.current_board[7,2] == " "\
-                and self.current_board[7,3] == " ":
+            if side == "queenside" and self.R1_move_count == 0 and self.current_board[7,1] == 0 and self.current_board[7,2] == 0\
+                and self.current_board[7,3] == 0:
                 if inplace == True:
-                    self.current_board[7,0] = " "; self.current_board[7,3] = 11
-                    self.current_board[7,4] = " "; self.current_board[7,2] = 15
+                    self.current_board[7,0] = 0; self.current_board[7,3] = 11
+                    self.current_board[7,4] = 0; self.current_board[7,2] = 15
                     self.K_move_count += 1
                     self.player = 1
                 return True
-            elif side == "kingside" and self.R2_move_count == 0 and self.current_board[7,5] == " " and self.current_board[7,6] == " ":
+            elif side == "kingside" and self.R2_move_count == 0 and self.current_board[7,5] == 0 and self.current_board[7,6] == 0:
                 if inplace == True:
-                    self.current_board[7,7] = " "; self.current_board[7,5] = 11
-                    self.current_board[7,4] = " "; self.current_board[7,6] = 15
+                    self.current_board[7,7] = 0; self.current_board[7,5] = 11
+                    self.current_board[7,4] = 0; self.current_board[7,6] = 15
                     self.K_move_count += 1
                     self.player = 1
                 return True
         if self.player == 1 and self.k_move_count == 0:
-            if side == "queenside" and self.r1_move_count == 0 and self.current_board[0,1] == " " and self.current_board[0,2] == " "\
-                and self.current_board[0,3] == " ":
+            if side == "queenside" and self.r1_move_count == 0 and self.current_board[0,1] == 0 and self.current_board[0,2] == 0\
+                and self.current_board[0,3] == 0:
                 if inplace == True:
-                    self.current_board[0,0] = " "; self.current_board[0,3] = 1
-                    self.current_board[0,4] = " "; self.current_board[0,2] = 5
+                    self.current_board[0,0] = 0; self.current_board[0,3] = 1
+                    self.current_board[0,4] = 0; self.current_board[0,2] = 5
                     self.k_move_count += 1
                     self.player = 0
                 return True
-            elif side == "kingside" and self.r2_move_count == 0 and self.current_board[0,5] == " " and self.current_board[0,6] == " ":
+            elif side == "kingside" and self.r2_move_count == 0 and self.current_board[0,5] == 0 and self.current_board[0,6] == 0:
                 if inplace == True:
-                    self.current_board[0,7] = " "; self.current_board[0,5] = 1
-                    self.current_board[0,4] = " "; self.current_board[0,6] = 5
+                    self.current_board[0,7] = 0; self.current_board[0,5] = 1
+                    self.current_board[0,4] = 0; self.current_board[0,6] = 5
                     self.k_move_count += 1
                     self.player = 0
                 return True
