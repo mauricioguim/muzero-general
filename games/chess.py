@@ -440,7 +440,7 @@ class Chess:
         return c_list, c_dict
         
     def move_rules_K(self):
-        current_position = np.where(self.current_board==15)
+        current_position = numpy.where(self.current_board==15)
         i, j = current_position; i,j = i[0],j[0]
         next_positions = []
         c_list, _ = self.possible_B_moves(threats=True)
@@ -515,13 +515,13 @@ class Chess:
     def check_status(self):
         if self.player == 0:
             c_list,_ = self.possible_B_moves(threats=True)
-            king_position = np.where(self.current_board==15)
+            king_position = numpy.where(self.current_board==15)
             i, j = king_position
             if (i,j) in c_list:
                 return True
         elif self.player == 1:
             c_list,_ = self.possible_W_moves(threats=True)
-            king_position = np.where(self.current_board==5)
+            king_position = numpy.where(self.current_board==5)
             i, j = king_position
             if (i,j) in c_list:
                 return True
@@ -958,7 +958,7 @@ class Chess:
         if self.player == 0:
             possible_moves = []
             _, c_dict = self.possible_W_moves()
-            current_position = np.where(self.current_board==15)
+            current_position = numpy.where(self.current_board==15)
             i, j = current_position; i,j = i[0],j[0]
             c_dict[15] = {(i,j):self.move_rules_K()}
             for key in c_dict.keys():
@@ -976,7 +976,7 @@ class Chess:
         if self.player == 1:
             possible_moves = []
             _, c_dict = self.possible_B_moves()
-            current_position = np.where(self.current_board==5)
+            current_position = numpy.where(self.current_board==5)
             i, j = current_position; i,j = i[0],j[0]
             c_dict[5] = {(i,j):self.move_rules_k()}
             for key in c_dict.keys():
