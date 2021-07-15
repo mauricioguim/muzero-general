@@ -1,7 +1,7 @@
 import datetime
 import os
 
-import numpy
+import numpy as np
 import itertools
 import copy
 import torch
