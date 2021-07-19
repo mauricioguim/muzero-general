@@ -292,7 +292,7 @@ class Chess:
 
 
     def legal_actions(self): # returns all possible actions while not in check: initial_pos,final_pos,underpromote
-        acts = []
+        acts = [()]
         if self.player == 0:
             _,c_dict = self.possible_W_moves() # all non-king moves except castling
             current_position = numpy.where(self.current_board==15)
@@ -327,7 +327,7 @@ class Chess:
                                 acts.append([initial_pos,final_pos,p])
                         else:
                             acts.append([initial_pos,final_pos,None])
-            actss = []
+            actss = [()]
             for act in acts:  ## after move, check that its not check ownself, else illegal move
                 i,f,p = act; b = copy.deepcopy(self)
                 b.move_piece(i,f,p)
