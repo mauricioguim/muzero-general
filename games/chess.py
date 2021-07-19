@@ -384,7 +384,7 @@ class Chess:
         #does not include king, castling
     def possible_B_moves(self,threats=False):
         rooks = {}; knights = {}; bishops = {}; queens = {}; pawns = {};
-        board_state = self.current_board[i,j]
+        board_state = self.current_board
         i,j = numpy.where(board_state==1)
         for rook in zip(i,j):
             rooks[tuple(rook)] = self.move_rules_r(rook)
