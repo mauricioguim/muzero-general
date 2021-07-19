@@ -224,7 +224,7 @@ class Game(AbstractGame):
 class Chess:
     def __init__(self):
         #self.board = numpy.zeros((8, 8), dtype="int32")
-        self.board = numpy.zeros([8,8]).astype(int32)
+        self.board = numpy.zeros([8,8]).astype(int)
         self.board[0,0] = 1 #"r"
         self.board[0,1] = 2 #"n"
         self.board[0,2] = 3 #"b"
