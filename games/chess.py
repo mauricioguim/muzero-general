@@ -306,7 +306,7 @@ class Chess:
                                 acts.append([initial_pos,final_pos,p])
                         else:
                             acts.append([initial_pos,final_pos,None])
-            actss = []
+            actss = [()]
             for act in acts:  ## after move, check that its not check ownself, else illegal move
                 i,f,p = act; b = copy.deepcopy(self)
                 b.move_piece(i,f,p)
