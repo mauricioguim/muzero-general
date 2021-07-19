@@ -339,7 +339,7 @@ class Chess:
 
         #does not include king, castling
     def possible_W_moves(self, threats=False):
-        board_state = self.current_board[i,j]
+        board_state = self.current_board
         rooks = {}; knights = {}; bishops = {}; queens = {}; pawns = {};
         i,j = numpy.where(board_state==11)
         for rook in zip(i,j):
