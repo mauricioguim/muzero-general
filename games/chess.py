@@ -200,12 +200,7 @@ class Game(AbstractGame):
                 )
                 choice = (row - 1) * 8 + (col - 1)
                 if (
-                    choice in self.legal_actions()
-                    and 1 <= row
-                    and 1 <= col
-                    and row <= 8
-                    and col <= 8
-                ):
+                    choice in self.legal_actions()):
                     break
             except:
                 pass
