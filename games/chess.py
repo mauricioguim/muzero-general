@@ -342,7 +342,7 @@ class Chess:
     def get_observation(self):
         board_player1 = numpy.where(self.board == 1, 1, 0)
         board_player2 = numpy.where(self.board == -1, 1, 0)
-        board_to_play = numpy.full((8,8), self.player, dtype="int32")
+        board_to_play = numpy.full((8,8), self.player)
         return numpy.array([board_player1],[board_player2],[board_to_play])
 
     def move_rules_P(self,current_position):
