@@ -5,6 +5,9 @@ import gym
 import numpy
 import torch
 
+import itertools
+import copy
+
 #from abc import ABC, abstractmethod
 from .abstract_game import AbstractGame
 
@@ -241,7 +244,7 @@ class Game(AbstractGame):
 
 class Chess:
     def __init__(self):
-        self.board = np.zeros([8,8]).astype(str)
+        self.board = numpy.zeros([8,8]).astype(str)
         self.board[0,0] = "r"
         self.board[0,1] = "n"
         self.board[0,2] = "b"
@@ -283,7 +286,7 @@ class Chess:
         return 1 if self.player == 0 else 0
 
     def reset(self):
-        self.board = np.zeros([8,8]).astype(str)
+        self.board = numpy.zeros([8,8]).astype(str)
         self.board[0,0] = "r"
         self.board[0,1] = "n"
         self.board[0,2] = "b"
@@ -728,19 +731,19 @@ class Chess:
     def possible_W_moves(self, threats=False):
         board_state = self.current_board
         rooks = {}; knights = {}; bishops = {}; queens = {}; pawns = {};
-        i,j = np.where(board_state=="R")
+        i,j = numpy.where(board_state=="R")
         for rook in zip(i,j):
             rooks[tuple(rook)] = self.move_rules_R(rook)
-        i,j = np.where(board_state=="N")
+        i,j = numpy.where(board_state=="N")
         for knight in zip(i,j):
             knights[tuple(knight)] = self.move_rules_N(knight)
-        i,j = np.where(board_state=="B")
+        i,j = numpy.where(board_state=="B")
         for bishop in zip(i,j):
             bishops[tuple(bishop)] = self.move_rules_B(bishop)
-        i,j = np.where(board_state=="Q")
+        i,j = numpy.where(board_state=="Q")
         for queen in zip(i,j):
             queens[tuple(queen)] = self.move_rules_Q(queen)
-        i,j = np.where(board_state=="P")
+        i,j = numpy.where(board_state=="P")
         for pawn in zip(i,j):
             if threats==False:
                 pawns[tuple(pawn)],_ = self.move_rules_P(pawn)
@@ -754,7 +757,7 @@ class Chess:
         return c_list, c_dict
         
     def move_rules_k(self):
-        current_position = np.where(self.current_board=="k")
+        current_position = numpy.where(self.current_board=="k")
         i, j = current_position; i,j = i[0],j[0]
         next_positions = []
         c_list, _ = self.possible_W_moves(threats=True)
@@ -772,19 +775,19 @@ class Chess:
     def possible_B_moves(self,threats=False):
         rooks = {}; knights = {}; bishops = {}; queens = {}; pawns = {};
         board_state = self.current_board
-        i,j = np.where(board_state=="r")
+        i,j = numpy.where(board_state=="r")
         for rook in zip(i,j):
             rooks[tuple(rook)] = self.move_rules_r(rook)
-        i,j = np.where(board_state=="n")
+        i,j = numpy.where(board_state=="n")
         for knight in zip(i,j):
             knights[tuple(knight)] = self.move_rules_n(knight)
-        i,j = np.where(board_state=="b")
+        i,j = numpy.where(board_state=="b")
         for bishop in zip(i,j):
             bishops[tuple(bishop)] = self.move_rules_b(bishop)
-        i,j = np.where(board_state=="q")
+        i,j = numpy.where(board_state=="q")
         for queen in zip(i,j):
             queens[tuple(queen)] = self.move_rules_q(queen)
-        i,j = np.where(board_state=="p")
+        i,j = numpy.where(board_state=="p")
         for pawn in zip(i,j):
             if threats==False:
                 pawns[tuple(pawn)],_ = self.move_rules_p(pawn)
@@ -798,7 +801,7 @@ class Chess:
         return c_list, c_dict
         
     def move_rules_K(self):
-        current_position = np.where(self.current_board=="K")
+        current_position = numpy.where(self.current_board=="K")
         i, j = current_position; i,j = i[0],j[0]
         next_positions = []
         c_list, _ = self.possible_B_moves(threats=True)
@@ -909,13 +912,13 @@ class Chess:
     def check_status(self):
         if self.player == 0:
             c_list,_ = self.possible_B_moves(threats=True)
-            king_position = np.where(self.current_board=="K")
+            king_position = numpy.where(self.current_board=="K")
             i, j = king_position
             if (i,j) in c_list:
                 return True
         elif self.player == 1:
             c_list,_ = self.possible_W_moves(threats=True)
-            king_position = np.where(self.current_board=="k")
+            king_position = numpy.where(self.current_board=="k")
             i, j = king_position
             if (i,j) in c_list:
                 return True
@@ -931,7 +934,7 @@ class Chess:
         if self.player == 0:
             possible_moves = []
             _, c_dict = self.possible_W_moves()
-            current_position = np.where(self.current_board=="K")
+            current_position = numpy.where(self.current_board=="K")
             i, j = current_position; i,j = i[0],j[0]
             c_dict["K"] = {(i,j):self.move_rules_K()}
             for key in c_dict.keys():
@@ -949,7 +952,7 @@ class Chess:
         if self.player == 1:
             possible_moves = []
             _, c_dict = self.possible_B_moves()
-            current_position = np.where(self.current_board=="k")
+            current_position = numpy.where(self.current_board=="k")
             i, j = current_position; i,j = i[0],j[0]
             c_dict["k"] = {(i,j):self.move_rules_k()}
             for key in c_dict.keys():
@@ -969,7 +972,7 @@ class Chess:
         acts = []
         if self.player == 0:
             _,c_dict = self.possible_W_moves() # all non-king moves except castling
-            current_position = np.where(self.current_board=="K")
+            current_position = numpy.where(self.current_board=="K")
             i, j = current_position; i,j = i[0],j[0]
             c_dict["K"] = {(i,j):self.move_rules_K()} # all king moves
             for key in c_dict.keys():
@@ -990,7 +993,7 @@ class Chess:
             return actss
         if self.player == 1:
             _,c_dict = self.possible_B_moves() # all non-king moves except castling
-            current_position = np.where(self.current_board=="k")
+            current_position = numpy.where(self.current_board=="k")
             i, j = current_position; i,j = i[0],j[0]
             c_dict["k"] = {(i,j):self.move_rules_k()} # all king moves
             for key in c_dict.keys():
