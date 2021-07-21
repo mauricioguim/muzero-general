@@ -1017,7 +1017,7 @@ class Chess:
 
     def have_winner(self):
         if (self.legal_actions() == [] or self.in_check_possible_moves() == [] or actss == [] or possible_moves == []): #Verificar se a lógica está correta
-        return True
+            return True
 
     def render(self):
         print(self.board[::-1])
