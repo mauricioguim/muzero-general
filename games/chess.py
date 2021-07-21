@@ -212,7 +212,7 @@ class Game(AbstractGame):
                         f"Enter the column (1 to 8) to play for the player {self.to_play()}: "
                     )
                 )
-                choice = ([i, j])
+                choice = [i, j]
                 if (choice in self.legal_actions()):
                     break
             except:
