@@ -343,7 +343,7 @@ class Chess:
         board_player1 = numpy.where(self.board == 1, 1, 0)
         board_player2 = numpy.where(self.board == -1, 1, 0)
         board_to_play = numpy.full((8,8), self.player)
-        return numpy([board_player1, board_player2, board_to_play])
+        return ([board_player1, board_player2, board_to_play])
 
     def move_rules_P(self,current_position):
         i, j = current_position
