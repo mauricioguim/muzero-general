@@ -133,11 +133,9 @@ class Game(AbstractGame):
     Inherit this class for muzero to play
     """
 
-    @abstractmethod
     def __init__(self, seed=None):
         self.env = Chess()
 
-    @abstractmethod
     def step(self, action):
         """
         Apply action to the game.
@@ -158,7 +156,6 @@ class Game(AbstractGame):
         """
         return self.env.to_play()
 
-    @abstractmethod
     def legal_actions(self):
         """
         Should return the legal actions at each turn, if it is not available, it can return
@@ -171,7 +168,6 @@ class Game(AbstractGame):
         """
         return self.env.legal_actions()
 
-    @abstractmethod
     def reset(self):
         """
         Reset the game for a new game.
@@ -187,7 +183,6 @@ class Game(AbstractGame):
         """
         pass
 
-    @abstractmethod
     def render(self):
         """
         Display the game observation.
