@@ -8,6 +8,8 @@ import torch
 import itertools
 import copy
 
+import ray
+
 #from abc import ABC, abstractmethod
 from .abstract_game import AbstractGame
 
