@@ -338,7 +338,8 @@ class Chess:
         self.player *= -1
 
         return self.get_observation(), reward, done
-
+    
+    @ray.remote
     def get_observation(self):
         board_to_play = numpy.full((8,8), self.player, dtype="int32")
         return numpy.array([board_to_play])
