@@ -340,8 +340,6 @@ class Chess:
         return self.get_observation(), reward, done
 
     def get_observation(self):
-        board_player1 = numpy.where(self.board == 1, 1)
-        board_player2 = numpy.where(self.board == -1, 1)
         board_to_play = numpy.full((8,8), self.player, dtype="int32")
         return numpy.array([board_player1, board_player2, board_to_play])
 
