@@ -340,8 +340,7 @@ class Chess:
         self.player *= -1
 
         return self.get_observation(), reward, done
-    
-    @ray.remote
+ 
     def get_observation(self):
         return self.board
 
