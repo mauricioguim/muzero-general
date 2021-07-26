@@ -15,7 +15,7 @@ from .abstract_game import AbstractGame
 
 
 class MuZeroConfig:
-    def __init__(self):
+   def __init__(self):
 
         # More information is available here: https://github.com/werner-duvaud/muzero-general/wiki/Hyperparameter-Optimization
 
@@ -25,7 +25,7 @@ class MuZeroConfig:
 
 
         ### Game
-        self.observation_shape = (1, 8, 8)  # Dimensions of the game observation, must be 3D (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
+        self.observation_shape = (18, 8, 8)  # Dimensions of the game observation, must be 3D (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
         self.action_space = list(range(4672))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(2))  # List of players. You should only edit the length
         self.stacked_observations = 64  # Number of previous observations and previous actions to add to the current observation
@@ -37,10 +37,10 @@ class MuZeroConfig:
 
 
         ### Self-Play
-        self.num_workers = 1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
+        self.num_workers = 64  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         self.selfplay_on_gpu = False
-        self.max_moves = 100  # Maximum number of moves if game is not finished before
-        self.num_simulations = 100 # Number of future moves self-simulated
+        self.max_moves = 25000  # Maximum number of moves if game is not finished before
+        self.num_simulations = 700  # Number of future moves self-simulated
         self.discount = 0.997  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -60,21 +60,21 @@ class MuZeroConfig:
 
         # Residual Network
         self.downsample = "resnet"  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
-        self.blocks = 10  # Number of blocks in the ResNet
-        self.channels = 16  # Number of channels in the ResNet
-        self.reduced_channels_reward = 16  # Number of channels in reward head
-        self.reduced_channels_value = 16  # Number of channels in value head
-        self.reduced_channels_policy = 16  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [16, 16]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [16, 16]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [16, 16]  # Define the hidden layers in the policy head of the prediction network
+        self.blocks = 40  # Number of blocks in the ResNet
+        self.channels = 256  # Number of channels in the ResNet
+        self.reduced_channels_reward = 256  # Number of channels in reward head
+        self.reduced_channels_value = 256  # Number of channels in value head
+        self.reduced_channels_policy = 256  # Number of channels in policy head
+        self.resnet_fc_reward_layers = [256, 256]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [256, 256]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [256, 256]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 10
         self.fc_representation_layers = []  # Define the hidden layers in the representation network
         self.fc_dynamics_layers = [16]  # Define the hidden layers in the dynamics network
         self.fc_reward_layers = [16]  # Define the hidden layers in the reward network
-        self.fc_value_layers = [16]  # Define the hidden layers in the value network
+        self.fc_value_layers = [256]  # Define the hidden layers in the value network
         self.fc_policy_layers = [2]  # Define the hidden layers in the policy network
 
 
@@ -116,8 +116,7 @@ class MuZeroConfig:
         self.self_play_delay = 0  # Number of seconds to wait after each played game
         self.training_delay = 0  # Number of seconds to wait after each training step
         self.ratio = None  # Desired training steps per self played step ratio. Equivalent to a synchronous version, training can take much longer. Set it to None to disable it
-
-
+    
     def visit_softmax_temperature_fn(self, trained_steps):
         """
         Parameter to alter the visit count distribution to ensure that the action selection becomes greedier as training progresses.
