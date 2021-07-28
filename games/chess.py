@@ -25,22 +25,22 @@ class MuZeroConfig:
 
 
         ### Game
-        self.observation_shape = (18, 8, 8)  # Dimensions of the game observation, must be 3D (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
+        self.observation_shape = (3, 8, 8)  # Dimensions of the game observation, must be 3D (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
         self.action_space = list(range(4672))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(2))  # List of players. You should only edit the length
         self.stacked_observations = 64  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
-        self.opponent = None  # Hard coded agent that MuZero faces to assess his progress in multiplayer games. It doesn't influence training. None, "random" or "expert" if implemented in the Game class
+        self.opponent = "random"  # Hard coded agent that MuZero faces to assess his progress in multiplayer games. It doesn't influence training. None, "random" or "expert" if implemented in the Game class
 
 
 
         ### Self-Play
-        self.num_workers = 64  # Number of simultaneous threads/workers self-playing to feed the replay buffer
+        self.num_workers = 1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         self.selfplay_on_gpu = False
-        self.max_moves = 25000  # Maximum number of moves if game is not finished before
-        self.num_simulations = 700  # Number of future moves self-simulated
+        self.max_moves = 100  # Maximum number of moves if game is not finished before
+        self.num_simulations = 100 # Number of future moves self-simulated
         self.discount = 0.997  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -60,21 +60,21 @@ class MuZeroConfig:
 
         # Residual Network
         self.downsample = "resnet"  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
-        self.blocks = 40  # Number of blocks in the ResNet
-        self.channels = 256  # Number of channels in the ResNet
-        self.reduced_channels_reward = 256  # Number of channels in reward head
-        self.reduced_channels_value = 256  # Number of channels in value head
-        self.reduced_channels_policy = 256  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [256, 256]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [256, 256]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [256, 256]  # Define the hidden layers in the policy head of the prediction network
+        self.blocks = 10  # Number of blocks in the ResNet
+        self.channels = 16  # Number of channels in the ResNet
+        self.reduced_channels_reward = 16  # Number of channels in reward head
+        self.reduced_channels_value = 16  # Number of channels in value head
+        self.reduced_channels_policy = 16  # Number of channels in policy head
+        self.resnet_fc_reward_layers = [16, 16]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [16, 16]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [16, 16]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 10
         self.fc_representation_layers = []  # Define the hidden layers in the representation network
         self.fc_dynamics_layers = [16]  # Define the hidden layers in the dynamics network
         self.fc_reward_layers = [16]  # Define the hidden layers in the reward network
-        self.fc_value_layers = [256]  # Define the hidden layers in the value network
+        self.fc_value_layers = [16]  # Define the hidden layers in the value network
         self.fc_policy_layers = [2]  # Define the hidden layers in the policy network
 
 
@@ -246,7 +246,7 @@ class Game(AbstractGame):
 
 class Chess:
     def __init__(self):
-        self.board = numpy.zeros([8,8]).astype(str)
+        self.board = numpy.zeros([8,8], dtype=object)
         self.board[0,0] = "r"
         self.board[0,1] = "n"
         self.board[0,2] = "b"
@@ -285,10 +285,10 @@ class Chess:
         self.player = 1 # current player's turn (1:white, 0:black)
     
     def to_play(self):
-        return 1 if self.player == 0 else 0
+        return 0 if self.player == 1 else 1
 
     def reset(self):
-        self.board = numpy.zeros([8,8]).astype(str)
+        self.board = numpy.zeros([8,8], dtype=object)
         self.board[0,0] = "r"
         self.board[0,1] = "n"
         self.board[0,2] = "b"
@@ -324,7 +324,7 @@ class Chess:
         self.en_passant_move_copy = None
         self.copy_board = None; self.en_passant_copy = None; self.r1_move_count_copy = None; self.r2_move_count_copy = None; 
         self.k_move_count_copy = None; self.R1_move_count_copy = None; self.R2_move_count_copy = None; self.K_move_count_copy = None
-        self.player = 0 # current player's turn (0:white, 1:black)
+        self.player = 1 # current player's turn (1:white, 0:black)
         
         return self.get_observation()
 
@@ -346,6 +346,52 @@ class Chess:
         board_player2 = numpy.where(self.board == -1, 1, 0)
         board_to_play = numpy.full((8,8), self.player)
         return numpy.array([board_player1, board_player2, board_to_play], dtype="int32")
+
+
+    def legal_actions(self):
+        acts = []
+        if self.player == 1:
+            _,c_dict = self.possible_W_moves() # all non-king moves except castling
+            current_position = numpy.where(self.current_board=="K")
+            i, j = current_position; i,j = i[0],j[0]
+            c_dict["K"] = {(i,j):self.move_rules_K()} # all king moves
+            for key in c_dict.keys():
+                for initial_pos in c_dict[key].keys():
+                    for final_pos in c_dict[key][initial_pos]:
+                        if key in ["P","p"] and final_pos[0] in [0,7]:
+                            for p in ["queen","rook","knight","bishop"]:
+                                acts.append([initial_pos,final_pos,p])
+                        else:
+                            acts.append([initial_pos,final_pos,None])
+            actss = []
+            for act in acts:  ## after move, check that its not check ownself, else illegal move
+                i,f,p = act; b = copy.deepcopy(self)
+                b.move_piece(i,f,p)
+                b.player = 1
+                if b.check_status() == False:
+                    actss.append(act)
+            return actss
+        if self.player == 0:
+            _,c_dict = self.possible_B_moves() # all non-king moves except castling
+            current_position = numpy.where(self.current_board=="k")
+            i, j = current_position; i,j = i[0],j[0]
+            c_dict["k"] = {(i,j):self.move_rules_k()} # all king moves
+            for key in c_dict.keys():
+                for initial_pos in c_dict[key].keys():
+                    for final_pos in c_dict[key][initial_pos]:
+                        if key in ["P","p"] and final_pos[0] in [0,7]:
+                            for p in ["queen","rook","knight","bishop"]:
+                                acts.append([initial_pos,final_pos,p])
+                        else:
+                            acts.append([initial_pos,final_pos,None])
+            actss = []
+            for act in acts:  ## after move, check that its not check ownself, else illegal move
+                i,f,p = act; b = copy.deepcopy(self)
+                b.move_piece(i,f,p)
+                b.player = 0
+                if b.check_status() == False:
+                    actss.append(act)
+            return actss
 
     def move_rules_P(self,current_position):
         i, j = current_position
@@ -818,7 +864,7 @@ class Chess:
         return next_positions
     
     def move_piece(self,initial_position,final_position,promoted_piece="Q"):
-        if self.player == 0:
+        if self.player == 1:
             promoted = False
             i, j = initial_position
             piece = self.current_board[i,j]
@@ -841,10 +887,10 @@ class Chess:
                     promoted = True
             if promoted == False:
                 self.current_board[i,j] = piece
-            self.player = 1
+            self.player = 0
             self.move_count += 1
     
-        elif self.player == 1:
+        elif self.player == 0:
             promoted = False
             i, j = initial_position
             piece = self.current_board[i,j]
@@ -867,7 +913,7 @@ class Chess:
                     promoted = True
             if promoted == False:
                 self.current_board[i,j] = piece
-            self.player = 0
+            self.player = 1
             self.move_count += 1
 
         else:
@@ -876,49 +922,49 @@ class Chess:
         
     ## player = "w" or "b", side="queenside" or "kingside"
     def castle(self,side,inplace=False):
-        if self.player == 0 and self.K_move_count == 0:
+        if self.player == 1 and self.K_move_count == 0:
             if side == "queenside" and self.R1_move_count == 0 and self.current_board[7,1] == " " and self.current_board[7,2] == " "\
                 and self.current_board[7,3] == " ":
                 if inplace == True:
                     self.current_board[7,0] = " "; self.current_board[7,3] = "R"
                     self.current_board[7,4] = " "; self.current_board[7,2] = "K"
                     self.K_move_count += 1
-                    self.player = 1
+                    self.player = 0
                 return True
             elif side == "kingside" and self.R2_move_count == 0 and self.current_board[7,5] == " " and self.current_board[7,6] == " ":
                 if inplace == True:
                     self.current_board[7,7] = " "; self.current_board[7,5] = "R"
                     self.current_board[7,4] = " "; self.current_board[7,6] = "K"
                     self.K_move_count += 1
-                    self.player = 1
+                    self.player = 0
                 return True
-        if self.player == 1 and self.k_move_count == 0:
+        if self.player == 0 and self.k_move_count == 0:
             if side == "queenside" and self.r1_move_count == 0 and self.current_board[0,1] == " " and self.current_board[0,2] == " "\
                 and self.current_board[0,3] == " ":
                 if inplace == True:
                     self.current_board[0,0] = " "; self.current_board[0,3] = "r"
                     self.current_board[0,4] = " "; self.current_board[0,2] = "k"
                     self.k_move_count += 1
-                    self.player = 0
+                    self.player = 1
                 return True
             elif side == "kingside" and self.r2_move_count == 0 and self.current_board[0,5] == " " and self.current_board[0,6] == " ":
                 if inplace == True:
                     self.current_board[0,7] = " "; self.current_board[0,5] = "r"
                     self.current_board[0,4] = " "; self.current_board[0,6] = "k"
                     self.k_move_count += 1
-                    self.player = 0
+                    self.player = 1
                 return True
         return False
     
     ## Check if current player's king is in check
     def check_status(self):
-        if self.player == 0:
+        if self.player == 1:
             c_list,_ = self.possible_B_moves(threats=True)
             king_position = numpy.where(self.current_board=="K")
             i, j = king_position
             if (i,j) in c_list:
                 return True
-        elif self.player == 1:
+        elif self.player == 0:
             c_list,_ = self.possible_W_moves(threats=True)
             king_position = numpy.where(self.current_board=="k")
             i, j = king_position
@@ -933,7 +979,7 @@ class Chess:
         self.k_move_count_copy = copy.deepcopy(self.k_move_count); self.R1_move_count_copy = copy.deepcopy(self.R1_move_count); 
         self.R2_move_count_copy = copy.deepcopy(self.R2_move_count)
         self.K_move_count_copy = copy.deepcopy(self.K_move_count)
-        if self.player == 0:
+        if self.player == 1:
             possible_moves = []
             _, c_dict = self.possible_W_moves()
             current_position = numpy.where(self.current_board=="K")
@@ -943,7 +989,7 @@ class Chess:
                 for initial_pos in c_dict[key].keys():
                     for final_pos in c_dict[key][initial_pos]:
                         self.move_piece(initial_pos,final_pos)
-                        self.player = 0 # reset board
+                        self.player = 1 # reset board
                         if self.check_status() == False:
                             possible_moves.append([initial_pos, final_pos])
                         self.current_board = copy.deepcopy(self.copy_board);
@@ -951,7 +997,7 @@ class Chess:
                         self.R1_move_count = copy.deepcopy(self.R1_move_count_copy); self.R2_move_count = copy.deepcopy(self.R2_move_count_copy)
                         self.K_move_count = copy.deepcopy(self.K_move_count_copy); self.move_count = self.move_count_copy
             return possible_moves
-        if self.player == 1:
+        if self.player == 0:
             possible_moves = []
             _, c_dict = self.possible_B_moves()
             current_position = numpy.where(self.current_board=="k")
@@ -961,7 +1007,7 @@ class Chess:
                 for initial_pos in c_dict[key].keys():
                     for final_pos in c_dict[key][initial_pos]:
                         self.move_piece(initial_pos,final_pos)
-                        self.player = 1 # reset board
+                        self.player = 0 # reset board
                         if self.check_status() == False:
                             possible_moves.append([initial_pos, final_pos])
                         self.current_board = copy.deepcopy(self.copy_board);
@@ -970,50 +1016,7 @@ class Chess:
                         self.k_move_count = copy.deepcopy(self.k_move_count_copy); self.move_count = self.move_count_copy
             return possible_moves
 
-    def legal_actions(self):
-        acts = []
-        if self.player == 0:
-            _,c_dict = self.possible_W_moves() # all non-king moves except castling
-            current_position = numpy.where(self.current_board=="K")
-            i, j = current_position; i,j = i[0],j[0]
-            c_dict["K"] = {(i,j):self.move_rules_K()} # all king moves
-            for key in c_dict.keys():
-                for initial_pos in c_dict[key].keys():
-                    for final_pos in c_dict[key][initial_pos]:
-                        if key in ["P","p"] and final_pos[0] in [0,7]:
-                            for p in ["queen","rook","knight","bishop"]:
-                                acts.append([initial_pos,final_pos,p])
-                        else:
-                            acts.append([initial_pos,final_pos,None])
-            actss = []
-            for act in acts:  ## after move, check that its not check ownself, else illegal move
-                i,f,p = act; b = copy.deepcopy(self)
-                b.move_piece(i,f,p)
-                b.player = 0
-                if b.check_status() == False:
-                    actss.append(act)
-            return actss
-        if self.player == 1:
-            _,c_dict = self.possible_B_moves() # all non-king moves except castling
-            current_position = numpy.where(self.current_board=="k")
-            i, j = current_position; i,j = i[0],j[0]
-            c_dict["k"] = {(i,j):self.move_rules_k()} # all king moves
-            for key in c_dict.keys():
-                for initial_pos in c_dict[key].keys():
-                    for final_pos in c_dict[key][initial_pos]:
-                        if key in ["P","p"] and final_pos[0] in [0,7]:
-                            for p in ["queen","rook","knight","bishop"]:
-                                acts.append([initial_pos,final_pos,p])
-                        else:
-                            acts.append([initial_pos,final_pos,None])
-            actss = []
-            for act in acts:  ## after move, check that its not check ownself, else illegal move
-                i,f,p = act; b = copy.deepcopy(self)
-                b.move_piece(i,f,p)
-                b.player = 1
-                if b.check_status() == False:
-                    actss.append(act)
-            return actss
+    
 
     def have_winner(self):
         if (self.legal_actions() == [] or self.in_check_possible_moves() == [] or actss == [] or possible_moves == []): #Verificar se a lógica está correta
@@ -1021,3 +1024,4 @@ class Chess:
 
     def render(self):
         print(self.board[::-1])
+
