@@ -240,10 +240,10 @@ class MuZeroConfig:
             return self.player
 
         def reset(self):
-        self.board = chess.Board()
-        self.result = None
-        self.player = 0 #white
-        self.moves = 0
+            self.board = chess.Board()
+            self.result = None
+            self.player = 0 #white
+            self.moves = 0
 
         return self.get_observation()
 
