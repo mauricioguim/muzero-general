@@ -24,15 +24,11 @@ import trainer
 class MuZero:
     """
     Main class to manage MuZero.
-
     Args:
         game_name (str): Name of the game module, it should match the name of a .py file
         in the "./games" directory.
-
         config (dict, MuZeroConfig, optional): Override the default config of the game.
-
         split_resources_in (int, optional): Split the GPU usage when using concurent muzero instances.
-
     Example:
         >>> muzero = MuZero("cartpole")
         >>> muzero.train()
@@ -127,7 +123,6 @@ class MuZero:
     def train(self, log_in_tensorboard=True):
         """
         Spawn ray workers and launch the training.
-
         Args:
             log_in_tensorboard (bool): Start a testing worker and log its performance in TensorBoard.
         """
@@ -298,12 +293,9 @@ class MuZero:
                 writer.add_scalar("3.Loss/Value_loss", info["value_loss"], counter)
                 writer.add_scalar("3.Loss/Reward_loss", info["reward_loss"], counter)
                 writer.add_scalar("3.Loss/Policy_loss", info["policy_loss"], counter)
-                print(
-                    f'Last test reward: {info["total_reward"]:.2f}. Training step: {info["training_step"]}/{self.config.training_steps}. Played games: {info["num_played_games"]}. Loss: {info["total_loss"]:.2f}',
-                    end="\r",
-                )
+
                 counter += 1
-                time.sleep(0.5)
+                time.sleep(20)
         except KeyboardInterrupt:
             pass
 
@@ -348,19 +340,14 @@ class MuZero:
     ):
         """
         Test the model in a dedicated thread.
-
         Args:
             render (bool): To display or not the environment. Defaults to True.
-
             opponent (str): "self" for self-play, "human" for playing against MuZero and "random"
             for a random agent, None will use the opponent in the config. Defaults to None.
-
             muzero_player (int): Player number of MuZero in case of multiplayer
             games, None let MuZero play all players turn by turn, None will use muzero_player in
             the config. Defaults to None.
-
             num_tests (int): Number of games to average. Defaults to 1.
-
             num_gpus (int): Number of GPUs to use, 0 forces to use the CPU. Defaults to 0.
         """
         opponent = opponent if opponent else self.config.opponent
@@ -398,10 +385,8 @@ class MuZero:
     def load_model(self, checkpoint_path=None, replay_buffer_path=None):
         """
         Load a model and/or a saved replay buffer.
-
         Args:
             checkpoint_path (str): Path to model.checkpoint or model.weights.
-
             replay_buffer_path (str): Path to replay_buffer.pkl
         """
         # Load checkpoint
@@ -442,7 +427,6 @@ class MuZero:
         """
         Play a game only with the learned model then play the same trajectory in the real
         environment and display information.
-
         Args:
             horizon (int): Number of timesteps for which we collect information.
         """
@@ -472,17 +456,12 @@ def hyperparameter_search(
 ):
     """
     Search for hyperparameters by launching parallel experiments.
-
     Args:
         game_name (str): Name of the game module, it should match the name of a .py file
         in the "./games" directory.
-
         parametrization : Nevergrad parametrization, please refer to nevergrad documentation.
-
         budget (int): Number of experiments to launch in total.
-
         parallel_experiments (int): Number of experiments to launch in parallel.
-
         num_tests (int): Number of games to average for evaluating an experiment.
     """
     optimizer = nevergrad.optimizers.OnePlusOne(
@@ -667,7 +646,7 @@ if __name__ == "__main__":
                 del muzero
                 budget = 20
                 parallel_experiments = 2
-                lr_init = nevergrad.p.Log(lower=0.0001, upper=0.1)
+                lr_init = nevergrad.p.Log(a_min=0.0001, a_max=0.1)
                 discount = nevergrad.p.Log(lower=0.95, upper=0.9999)
                 parametrization = nevergrad.p.Dict(lr_init=lr_init, discount=discount)
                 best_hyperparameters = hyperparameter_search(
