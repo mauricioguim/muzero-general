@@ -115,7 +115,7 @@ class MuZeroConfig:
         return 1
 
 
-    class Game(AbstractGame):
+class Game(AbstractGame):
 
         def __init__(self, seed=None):
             self.env = Chess()
