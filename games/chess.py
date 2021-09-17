@@ -245,7 +245,7 @@ class MuZeroConfig:
             self.player = 0 #white
             self.moves = 0
 
-        return self.get_observation()
+            return self.get_observation()
 
     def step(self, action: int):
         self.board.push_uci(uci_moves[action])
