@@ -227,7 +227,7 @@ class Game(AbstractGame):
 
 
 
-    class Chess:
+class Chess:
 
         def __init__(self):
             self.board = chess.Board()
