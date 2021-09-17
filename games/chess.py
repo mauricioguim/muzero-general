@@ -7,6 +7,8 @@ import torch
 
 from stockfish import Stockfish
 
+from games.abstract_game import AbstractGame
+
 from move_mapper import uci_moves, uci_to_index
 
 class MuZeroConfig:
