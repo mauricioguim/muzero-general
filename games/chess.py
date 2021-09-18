@@ -193,7 +193,7 @@ class Game(AbstractGame):
                     print(str(legal_moves))
 
                     move_chosen = input(
-                        f"Enter move for {'White' if self.to_play() == PLAYER_WHITE else 'Black'}: "
+                        f"Enter move for {'White' if self.to_play() == 0 else 'Black'}: "
                     )
                     if move_chosen in legal_moves:
                         print(move_chosen)
@@ -229,26 +229,26 @@ class Game(AbstractGame):
 
 class Chess:
 
-        def __init__(self):
-            self.board = chess.Board()
-            self.result = None
-            self.player = 0 #white
-            self.moves = 0
-            self.stock_fish = Stockfish('stockfish/stockfish_13_linux_x64_bmi2',
-                                        parameters={"Threads": 2, "Minimum Thinking Time": 200})
-            self.stock_fish.set_elo_rating(3000)
+    def __init__(self):
+        self.board = chess.Board()
+        self.result = None
+        self.player = 0 #white
+        self.moves = 0
+        self.stock_fish = Stockfish('stockfish/stockfish_13_linux_x64_bmi2',
+                                    parameters={"Threads": 2, "Minimum Thinking Time": 200})
+        self.stock_fish.set_elo_rating(3000)
 
-        def to_play(self):
-            self.stock_fish.set_position(self.board.fen())
-            return self.player
+    def to_play(self):
+        self.stock_fish.set_position(self.board.fen())
+        return self.player
 
-        def reset(self):
-            self.board = chess.Board()
-            self.result = None
-            self.player = 0 #white
-            self.moves = 0
+    def reset(self):
+        self.board = chess.Board()
+        self.result = None
+        self.player = 0 #white
+        self.moves = 0
 
-            return self.get_observation()
+        return self.get_observation()
 
     def step(self, action: int):
         self.board.push_uci(uci_moves[action])
