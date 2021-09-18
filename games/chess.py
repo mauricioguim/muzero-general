@@ -1,21 +1,19 @@
-import datetime #fornece as classes para manipulação de datas e horas.
+import datetime
 import os
 
-import chess #Biblioteca python para xadrez para gerar movimentos válidos
+import chess
 import numpy
 import torch
-
 from stockfish import Stockfish
 
 from games.abstract_game import AbstractGame
-
 from move_mapper import uci_moves, uci_to_index
 
+
 class MuZeroConfig:
-    """
-    Inherit this class for muzero to play
-    """
     def __init__(self):
+        # More information is available here: https://github.com/werner-duvaud/muzero-general/wiki/Hyperparameter-Optimization
+
         self.seed = 0  # Seed for numpy, torch and the game
         self.max_num_gpus = None  # Fix the maximum number of GPUs to use. It's usually faster to use a single GPU (set it to 1) if it has enough
         # memory. None will use every GPUs available
@@ -86,7 +84,7 @@ class MuZeroConfig:
         self.value_loss_weight = 0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
-        self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD // Um argumento interessante e dominante sobre otimizadores é que SGD generaliza melhor do que Adam. Esses artigos argumentam que, embora Adam converta mais rápido, SGD generaliza melhor do que Adam e, portanto, resulta em desempenho final aprimorado.
+        self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
         self.weight_decay = 1e-4  # L2 weights regularization
         self.momentum = 0.9  # Used only if optimizer is SGD
 
@@ -112,8 +110,13 @@ class MuZeroConfig:
         self.ratio = None  # Desired training steps per self played step ratio. Equivalent to a synchronous version, training can take much longer. Set it to None to disable it
 
     def visit_softmax_temperature_fn(self, trained_steps):
+        """
+        Parameter to alter the visit count distribution to ensure that the action selection becomes greedier as training progresses.
+        The smaller it is, the more likely the best action (ie with the highest visit count) is chosen.
+        Returns:
+            Positive float.
+        """
         return 1
-
 
 class Game(AbstractGame):
 
