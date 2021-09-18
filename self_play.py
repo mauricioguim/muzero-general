@@ -6,6 +6,7 @@ import ray
 import torch
 
 import models
+from move_mapper import uci_to_index
 
 
 @ray.remote
