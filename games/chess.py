@@ -162,7 +162,7 @@ class Game(AbstractGame):
             Returns:
                 Initial observation of the game.
             """
-            pass
+            return self.env.reset()
 
         def close(self):
             """
