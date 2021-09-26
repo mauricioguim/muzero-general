@@ -246,7 +246,7 @@ class Chess:
         return self.player
 
     def reset(self):
-        self.board = chess.Board()
+        self.board = get_board_visual()
         self.result = None
         self.player = 0 #white
         self.moves = 0
