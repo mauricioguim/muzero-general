@@ -233,7 +233,7 @@ class Game(AbstractGame):
 class Chess:
 
     def __init__(self):
-        self.board = self.Stockfish.get_board_visual()
+        self.board = chess.Board()
         self.result = None
         self.player = 0 #white
         self.moves = 0
@@ -246,7 +246,7 @@ class Chess:
         return self.player
 
     def reset(self):
-        self.board = self.Stockfish.get_board_visual()
+        self.board = chess.Board()
         self.result = None
         self.player = 0 #white
         self.moves = 0
