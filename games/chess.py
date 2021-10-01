@@ -118,137 +118,133 @@ class MuZeroConfig:
         """
         return 1
 
+
 class Game(AbstractGame):
+    """
+    Game wrapper.
+    """
 
-        def __init__(self, seed=None):
-            self.env = Chess()
+    def __init__(self, seed=None):
+        super().__init__(seed)
+        self.env = Chess()
 
-        def step(self, action):
-            """
-            Apply action to the game.
-            
-            Args:
-                action : action of the action_space to take.
+    def step(self, action):
+        """
+        Apply action to the game.
+        
+        Args:
+            action : action of the action_space to take.
+        Returns:
+            The new observation, the reward and a boolean if the game has ended.
+        """
+        observation, reward, done = self.env.step(action)
+        return observation, reward, done
 
-            Returns:
-                The new observation, the reward and a boolean if the game has ended.
-            """
-            observation, reward, done = self.env.step(action)
-            return observation, reward, done
+    def to_play(self):
+        """
+        Return the current player.
+        Returns:
+            The current player, it should be an element of the players list in the config. 
+        """
+        return self.env.to_play()
 
-        def to_play(self):
-            """
-            Return the current player.
+    def legal_actions(self):
+        """
+        Should return the legal actions at each turn, if it is not available, it can return
+        the whole action space. At each turn, the game have to be able to handle one of returned actions.
+        
+        For complex game where calculating legal moves is too long, the idea is to define the legal actions
+        equal to the action space but to return a negative reward if the action is illegal.
+    
+        Returns:
+            An array of integers, subset of the action space.
+        """
+        return self.env.get_legal_actions()
 
-            Returns:
-                The current player, it should be an element of the players list in the config. 
-            """
-            return self.env.to_play()
+    def reset(self):
+        """
+        Reset the game for a new game.
+        
+        Returns:
+            Initial observation of the game.
+        """
+        return self.env.reset()
 
-        def legal_actions(self):
-            """
-            Should return the legal actions at each turn, if it is not available, it can return
-            the whole action space. At each turn, the game have to be able to handle one of returned actions.
-            
-            For complex game where calculating legal moves is too long, the idea is to define the legal actions
-            equal to the action space but to return a negative reward if the action is illegal.
+    def render(self):
+        """
+        Display the game observation.
+        """
+        self.env.render()
+        input("Press enter to take a step ")
 
-            Returns:
-                An array of integers, subset of the action space.
-            """
-            return self.env.legal_actions()
+    def human_to_action(self):
+        """
+        For multiplayer games, ask the user for a legal action
+        and return the corresponding action number.
+        Returns:
+            An integer from the action space.
+        """
+        print(self.env.board)
+        while True:
+            try:
+                legal_moves = self.env.get_legal_moves()
 
-        def reset(self):
-            """
-            Reset the game for a new game.
-            
-            Returns:
-                Initial observation of the game.
-            """
-            return self.env.reset()
+                print(str(legal_moves))
 
-        def close(self):
-            """
-            Properly close the game.
-            """
-            pass
+                move_chosen = input(
+                    f"Enter move for {'White' if self.to_play() == PLAYER_WHITE else 'Black'}: "
+                )
+                if move_chosen in legal_moves:
+                    print(move_chosen)
+                    return uci_to_index[move_chosen]
+            except:
+                pass
+            print("Wrong input, try again")
 
-        def render(self):
-            """
-            Display the game observation.
-            """
-            self.env.render()
-            input("Press enter to take a step ")
+    def expert_agent(self):
+        """
+        Hard coded agent that MuZero faces to assess his progress in multiplayer games.
+        It doesn't influence training
+        Returns:
+            Action as an integer to take in the current game state
+        """
+        return self.env.expert_action()
 
-        def human_to_action(self):
-            """
-            For multiplayer games, ask the user for a legal action
-            and return the corresponding action number.
+    def action_to_string(self, action_number):
+        """
+        Convert an action number to a string representing the action.
+        
+        Args:
+            action_number: an integer from the action space.
+        Returns:
+            String representing the action.
+        """
 
-            Returns:
-                An integer from the action space.
-            """
-            print(self.env.board)
-            while True:
-                try:
-                    legal_moves = self.env.get_legal_moves()
-
-                    print(str(legal_moves))
-
-                    move_chosen = input(
-                        f"Enter move for {'White' if self.to_play() == 0 else 'Black'}: "
-                    )
-                    if move_chosen in legal_moves:
-                        print(move_chosen)
-                        return uci_to_index[move_chosen]
-                except:
-                    pass
-                print("Wrong input, try again")
-
-        def expert_agent(self):
-            """
-            Hard coded agent that MuZero faces to assess his progress in multiplayer games.
-            It doesn't influence training
-
-            Returns:
-                Action as an integer to take in the current game state
-            """
-            return self.env.expert_action()
-
-        def action_to_string(self, action_number):
-            """
-            Convert an action number to a string representing the action.
-
-            Args:
-                action_number: an integer from the action space.
-
-            Returns:
-                String representing the action.
-            """
-            return uci_moves[action_number]
+        return uci_moves[action_number]
 
 
+PLAYER_WHITE = 0
+PLAYER_BLACK = 1
 
 
 class Chess:
-
     def __init__(self):
         self.board = chess.Board()
         self.result = None
-        self.player = 0 #white
+        self.player = PLAYER_WHITE
         self.moves = 0
         self.stock_fish = Stockfish('stockfish/stockfish_13_linux_x64_bmi2',
                                     parameters={"Threads": 2, "Minimum Thinking Time": 200})
         self.stock_fish.set_elo_rating(3000)
 
     def to_play(self):
-        self.stock_fish.set_position(self.board.fen())
+        self.stock_fish.set_fen_position(self.board.fen())
         return self.player
 
     def reset(self):
         self.board = chess.Board()
         self.result = None
-        self.player = 0 #white
+        self.player = PLAYER_WHITE
         self.moves = 0
 
         return self.get_observation()
@@ -273,7 +269,7 @@ class Chess:
 
         return self.get_observation(), 0, False
 
-    def legal_actions(self):
+    def get_legal_actions(self):
         legal_moves = []
 
         for legal_move in self.board.legal_moves:
@@ -308,7 +304,7 @@ class Chess:
             self.result = "draw"
             return True
         elif self.board.legal_moves.count() == 0:
-            if self.player == 0:
+            if self.player == PLAYER_WHITE:
                 self.result = 'Winner: Black'
             else:
                 self.result = 'Winner: White'
@@ -317,10 +313,10 @@ class Chess:
         return False
 
     def _set_next_player(self):
-        if self.player == 0: 
-            self.player = 1 #Black player
+        if self.player == PLAYER_WHITE:
+            self.player = PLAYER_BLACK
         else:
-            self.player = 0 #White player
+            self.player = PLAYER_WHITE
 
     def _convert_to_int_board(self):
         int_board = []
