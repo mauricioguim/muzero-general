@@ -51,9 +51,6 @@ class SelfPlay:
                     "self",
                     0,
                 )
-                
-                game_count += 1
-                print(f'Games: {game_count}, Training steps: {self.config.training_steps}')
 
                 replay_buffer.save_game.remote(game_history, shared_storage)
 
