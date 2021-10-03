@@ -248,10 +248,6 @@ class Chess:
         self.board.push_uci(uci_moves[action])
         self.moves += 1
         reward = 0
-        best_action = uci_to_index[best_move]
-
-        if action == best_action:
-            reward = 1
 
         # print(f'Moves: {self.moves} - Player: {self.player} - Move: {uci_moves[action]} - Reward: {reward}')
 
