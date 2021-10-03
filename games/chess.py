@@ -4,7 +4,6 @@ import os
 import chess
 import numpy
 import torch
-from stockfish import Stockfish
 
 from games.abstract_game import AbstractGame
 from move_mapper import uci_moves, uci_to_index
@@ -233,12 +232,8 @@ class Chess:
         self.result = None
         self.player = PLAYER_WHITE
         self.moves = 0
-        self.stock_fish = Stockfish('stockfish/stockfish_13_linux_x64_bmi2',
-                                    parameters={"Threads": 2, "Minimum Thinking Time": 200})
-        self.stock_fish.set_elo_rating(3000)
 
     def to_play(self):
-        self.stock_fish.set_fen_position(self.board.fen())
         return self.player
 
     def reset(self):
@@ -253,7 +248,6 @@ class Chess:
         self.board.push_uci(uci_moves[action])
         self.moves += 1
         reward = 0
-        best_move = self.stock_fish.get_best_move()
         best_action = uci_to_index[best_move]
 
         if action == best_action:
@@ -291,9 +285,6 @@ class Chess:
         to_move = [[self.to_play()] * 8] * 8
 
         return numpy.array([int_board, to_move])
-
-    def expert_action(self):
-        return uci_to_index[self.stock_fish.get_best_move()]
 
     def render(self):
         print(self.board)
