@@ -90,7 +90,7 @@ class MuZeroConfig:
         # Exponential learning rate schedule
         self.lr_init = 2e-1  # Initial learning rate
         self.lr_decay_rate = 1  # Set it to 1 to use a constant learning rate
-        self.lr_decay_steps = 100000
+        self.lr_decay_steps = 1000
 
         ### Replay Buffer
         self.replay_buffer_size = 3000  # Number of self-play games to keep in the replay buffer
