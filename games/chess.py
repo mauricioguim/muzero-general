@@ -33,7 +33,7 @@ class MuZeroConfig:
         ### Self-Play
         self.num_workers = 1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         self.selfplay_on_gpu = torch.cuda.is_available()
-        self.max_moves = 128  # Maximum number of moves if game is not finished before
+        self.max_moves = 512  # Maximum number of moves if game is not finished before
         self.num_simulations = 10  # Number of future moves self-simulated
         self.discount = 1  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
@@ -95,7 +95,7 @@ class MuZeroConfig:
         ### Replay Buffer
         self.replay_buffer_size = 3000  # Number of self-play games to keep in the replay buffer
         self.num_unroll_steps = 4  # Number of game moves to keep for every batch element
-        self.td_steps = 128  # Number of steps in the future to take into account for calculating the target value
+        self.td_steps = 512  # Number of steps in the future to take into account for calculating the target value
         self.PER = True  # Prioritized Replay (See paper appendix Training), select in priority the elements in the replay buffer which are unexpected for the network
         self.PER_alpha = 0.5  # How much prioritization is used, 0 corresponding to the uniform case, paper suggests 1
 
