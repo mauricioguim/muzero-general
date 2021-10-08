@@ -557,8 +557,8 @@ class MinMaxStats:
     """
 
     def __init__(self):
-        self.maximum = -float("inf")
-        self.minimum = float("inf")
+        self.maximum = -1
+        self.minimum = 1
 
     def update(self, value):
         self.maximum = max(self.maximum, value)
