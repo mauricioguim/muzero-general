@@ -47,7 +47,7 @@ class MuZeroConfig:
         self.pb_c_init = 1.25
 
         ### Network
-        self.network = "fullyconnected"  # "resnet" / "fullyconnected"
+        self.network = "resnet"  # "resnet" / "fullyconnected"
         self.support_size = 10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range
         # of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
 
@@ -94,7 +94,7 @@ class MuZeroConfig:
 
         ### Replay Buffer
         self.replay_buffer_size = 3000  # Number of self-play games to keep in the replay buffer
-        self.num_unroll_steps = 4  # Number of game moves to keep for every batch element
+        self.num_unroll_steps = 5  # Number of game moves to keep for every batch element
         self.td_steps = 512  # Number of steps in the future to take into account for calculating the target value
         self.PER = True  # Prioritized Replay (See paper appendix Training), select in priority the elements in the replay buffer which are unexpected for the network
         self.PER_alpha = 0.5  # How much prioritization is used, 0 corresponding to the uniform case, paper suggests 1
